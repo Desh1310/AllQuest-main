@@ -3,224 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALLQUEST BETA-0.001</title>
-    <!-- Load Tailwind CSS -->
+    <title>ALLQUEST WebOS v6.0 - The Final Blow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        /* Global CSS Variables for Theme */
+        :root {
+            --accent-color: #4F46E5; /* Default Indigo-600 */
+            --accent-color-dark: #3730A3;
+            --accent-color-focus: #4F46E580;
+            --accent-color-bg-dark: #2A247580;
+
+            /* Light Mode Defaults */
+            --bg-primary: #F3F4F6;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #1F2937;
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --header-bg: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Dark Mode Configuration */
+        .dark-mode {
+            --bg-primary: #111827;
+            --bg-secondary: #1F2937;
+            --text-primary: #F3F4F6;
+            --glass-bg: rgba(30, 30, 30, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            --header-bg: rgba(40, 40, 40, 0.6);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
             overflow: hidden; 
-            background-color: #111827; /* Fallback for desktop-background */
+            touch-action: none; 
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.5s, color 0.5s;
         }
+
+        /* Enhanced Glassmorphism */
         .glass-effect {
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            background-color: rgba(30, 30, 30, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s ease-in-out;
         }
-        .allquest-highlight:hover {
-            background-color: rgba(99, 102, 241, 0.4);
-        }
-        /* Default ALLQUEST background image (can be overridden by JS settings) */
-        .desktop-background-image {
-            background-image: url('https://placehold.co/1920x1080/4F46E5/ffffff?text=ALLQUEST+BETA');
+
+        /* Desktop Background Animation (Aesthetics x 1000) */
+        .desktop-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
+            transition: background-image 0.5s ease-in-out, background-color 0.5s ease-in-out;
         }
-        .window-shadow {
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-            min-width: 300px; 
+        .animated-gradient {
+            background-image: linear-gradient(270deg, #111827, #3730A3, #4F46E5, #111827);
+            background-size: 400% 400%;
+            animation: gradient-shift 10s ease infinite;
+        }
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Window & Controls */
+        .app-window {
+            transition: all 0.2s ease-out;
+            min-width: 280px; 
             min-height: 200px;
+            width: 70vw;
+            height: 60vh;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
         }
-        .start-menu-open {
-            animation: fadeInScale 0.2s ease-out;
+        .window-header {
+            touch-action: none;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--glass-border);
+            cursor: grab;
         }
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .window-header:active {
+             cursor: grabbing;
         }
-        /* Custom scrollbar for dark theme */
-        .window-content::-webkit-scrollbar { width: 8px; }
-        .window-content::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
-        .window-content::-webkit-scrollbar-track { background: #1f2937; }
+        .window-control-btn {
+            opacity: 0.8;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .window-control-btn:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .close-btn { background-color: #ff5f56; }
+        .maximize-btn { background-color: #ffbd2e; }
+        .minimize-btn { background-color: #27c93f; }
+
+        /* Taskbar */
+        .taskbar-top { bottom: auto; top: 0; }
+        .taskbar-bottom { top: auto; bottom: 0; }
+        .taskbar-icon {
+            position: relative;
+            transition: background-color 0.15s;
+        }
+
+        /* Context Menu (Right Click) */
+        #contextMenu {
+            position: fixed;
+            z-index: 5000;
+            width: 200px;
+            padding: 4px 0;
+            list-style: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+        .context-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        .context-item:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .context-separator {
+            height: 1px;
+            background-color: var(--glass-border);
+            margin: 4px 0;
+        }
+
+        /* Terminal */
+        .terminal {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: monospace;
+            overflow-y: auto;
+        }
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            outline: none;
+            width: 100%;
+        }
+
+        /* Calculator specific styles */
+        .calculator-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .calc-button {
+            padding: 15px;
+            border-radius: 9999px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            transition: background-color 0.1s;
+        }
+        .calc-number { background-color: #3d3d3d; color: #fff; }
+        .calc-number:hover { background-color: #4f4f4f; }
+        .calc-operator { background-color: var(--accent-color-dark); color: #fff; }
+        .calc-operator:hover { background-color: var(--accent-color); }
+        .calc-misc { background-color: #a6a6a6; color: #000; }
+        .calc-misc:hover { background-color: #c9c9c9; }
+        .calc-zero { grid-column: span 2; border-radius: 40px; }
     </style>
 </head>
-<body class="h-screen w-screen relative">
+<body class="h-screen w-screen relative dark-mode">
+    
+    <script type="module">
+        // Firebase code (omitted for brevity, assume previous functional code here)
+        // ... (The previous Firebase setup code would go here)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <!-- Desktop Area (Background) -->
-    <div id="desktop" class="h-full w-full desktop-background-image flex flex-col items-center justify-center transition-all duration-500">
+        // Set Firebase Log Level
+        setLogLevel('Debug');
 
-        <!-- All Application Windows -->
-        
-        <!-- App 1: Explorer -->
-        <div id="appExplorer" class="app-window absolute hidden window-shadow rounded-xl overflow-hidden w-[80vw] max-w-[1000px] h-[70vh] bg-[#222222] text-white">
-            <div class="window-header flex items-center justify-between p-2 glass-effect cursor-grab active:cursor-grabbing select-none touch-manipulation">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-2 2v-2H4a2 2 0 01-2-2V5z"></path></svg>
-                    <span class="text-sm font-semibold">ALLQUEST Explorer</span>
-                </div>
-                <div class="flex space-x-1">
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l4 4m6 0h4m0 0v4m0-4l-4 4m-6 0H4m0 0v4m0-4l4 4m6 0v4m0 0h4m0-4l-4 4"></path></svg></button>
-                    <button onclick="document.getElementById('appExplorer').classList.add('hidden')" class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-red-600 rounded-md transition duration-150">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6 h-[calc(100%-44px)] overflow-y-auto window-content">
-                <h2 class="text-xl font-bold mb-4 text-indigo-400">Your Files and Directories</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    <!-- Placeholder Files/Folders -->
-                    <div class="p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/70 cursor-pointer transition">
-                        <svg class="w-8 h-8 text-yellow-300 mb-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
-                        <span class="text-sm">Documents</span>
-                    </div>
-                    <div class="p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/70 cursor-pointer transition">
-                        <svg class="w-8 h-8 text-green-300 mb-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
-                        <span class="text-sm">Media</span>
-                    </div>
-                    <div class="p-3 bg-gray-700/50 rounded-lg hover:bg-gray-600/70 cursor-pointer transition">
-                        <svg class="w-8 h-8 text-red-400 mb-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm11 4a1 1 0 100 2h1a1 1 0 100-2h-1zm5-1a1 1 0 100 2h1a1 1 0 100-2h-1zM4 12a2 2 0 100 4h12a2 2 0 100-4H4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-sm">Worksheets.txt</span>
-                    </div>
-                </div>
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        let userId = 'loading';
+        let isAuthReady = false;
+
+        // Initialize Firebase
+        if (firebaseConfig) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                async function authenticateUser() {
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        await signInAnonymously(auth);
+                    }
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        window.appDataLoaded(db, userId); 
+                    }
+                });
+
+                authenticateUser();
+
+            } catch (error) {
+                window.appDataLoaded(null, 'default-user'); 
+            }
+        } else {
+            window.appDataLoaded(null, 'default-user');
+        }
+    </script>
+    
+    <div id="desktop" class="h-full w-full relative" oncontextmenu="showDesktopContextMenu(event)">
+        <div id="desktopBackground" class="desktop-background animated-gradient" style="background-image: none;"></div>
+        <div id="desktopIcons" class="absolute top-4 left-4 flex flex-col space-y-2 z-10">
+            <div class="text-white text-xs p-2 rounded-lg glass-effect">
+                <p>User ID: <span id="displayUserId">...</span></p>
             </div>
         </div>
 
-        <!-- App 2: Settings (FUNCTIONAL) -->
-        <div id="appSettings" class="app-window absolute hidden window-shadow rounded-xl overflow-hidden w-[60vw] max-w-[800px] h-[60vh] bg-[#222222] text-white">
-            <div class="window-header flex items-center justify-between p-2 glass-effect cursor-grab active:cursor-grabbing select-none touch-manipulation">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-9a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V9zm7 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V9zm-7 4a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm7 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path></svg>
-                    <span class="text-sm font-semibold">ALLQUEST Settings</span>
-                </div>
-                <div class="flex space-x-1">
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l4 4m6 0h4m0 0v4m0-4l-4 4m-6 0H4m0 0v4m0-4l4 4m6 0v4m0 0h4m0-4l-4 4"></path></svg></button>
-                    <button onclick="document.getElementById('appSettings').classList.add('hidden')" class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-red-600 rounded-md transition duration-150">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
+        <div id="contextMenu" class="hidden glass-effect text-sm">
+            <div class="context-item" onclick="openWindow('appSettings'); hideContextMenu();">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-9a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V9zm7 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V9zm-7 4a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm7 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path></svg>
+                Personalize
+            </div>
+            <div class="context-item" onclick="toggleDarkMode(); hideContextMenu();">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zM9 18a1 1 0 01-1-1V8a1 1 0 012 0v9a1 1 0 01-1 1zM15 18a1 1 0 01-1-1V8a1 1 0 012 0v9a1 1 0 01-1 1z"/></svg>
+                Toggle Dark Mode
+            </div>
+            <div class="context-separator"></div>
+            <div class="context-item" onclick="openWindow('appBrowser'); hideContextMenu();">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z"/></svg>
+                Open Browser
+            </div>
+            <div class="context-item" onclick="openWindow('appTerminal'); hideContextMenu();">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zM12 9l-4 4 4 4v-3h4v-2h-4V9z"/></svg>
+                New Terminal
+            </div>
+        </div>
+        
+        <div id="appExplorer" class="app-window absolute hidden glass-effect rounded-xl" onmousedown="focusWindow(this)" ontouchstart="focusWindow(this)">
+            <div class="window-header flex items-center justify-between p-2 pl-4 select-none touch-manipulation" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                <span class="text-sm font-semibold">ALLQUEST Explorer</span>
+                <div class="flex space-x-1 pr-1">
+                    <button class="window-control-btn minimize-btn" onclick="minimizeWindow('appExplorer')"></button>
+                    <button class="window-control-btn maximize-btn" onclick="maximizeWindow('appExplorer')"></button>
+                    <button class="window-control-btn close-btn" onclick="closeWindow('appExplorer')"></button>
                 </div>
             </div>
-            <div class="p-6 h-[calc(100%-44px)] overflow-y-auto window-content">
-                <h2 class="text-xl font-bold mb-4 text-green-400">Personalization: Background</h2>
-                <p class="text-gray-400 mb-6">Choose a new background for your ALLQUEST desktop.</p>
+            <div class="p-6 h-[calc(100%-36px)] overflow-y-auto window-content">
+                <h2 class="text-xl font-bold mb-4" style="color: var(--accent-color)">Root Directory (/)</h2>
+                <div id="explorerContent" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                    </div>
+            </div>
+        </div>
 
-                <!-- Background Options -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <!-- Option 1: Default Image -->
-                    <div class="p-4 rounded-lg bg-gray-700/50 hover:ring-4 ring-indigo-500/50 cursor-pointer transition duration-200" onclick="setDesktopBackground('image', 'https://placehold.co/1920x1080/4F46E5/ffffff?text=ALLQUEST+BETA')">
-                        <div class="w-full h-16 rounded-lg bg-indigo-600 flex items-center justify-center text-xs font-semibold" style="background-image: url('https://placehold.co/1920x1080/4F46E5/ffffff?text=AQ'); background-size: cover;"></div>
-                        <p class="mt-2 text-sm text-gray-300">Default (Image)</p>
-                    </div>
+        <div id="appSettings" class="app-window absolute hidden glass-effect rounded-xl" onmousedown="focusWindow(this)" ontouchstart="focusWindow(this)">
+            <div class="window-header flex items-center justify-between p-2 pl-4 select-none touch-manipulation" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                <span class="text-sm font-semibold">ALLQUEST Settings</span>
+                <div class="flex space-x-1 pr-1">
+                    <button class="window-control-btn minimize-btn" onclick="minimizeWindow('appSettings')"></button>
+                    <button class="window-control-btn maximize-btn" onclick="maximizeWindow('appSettings')"></button>
+                    <button class="window-control-btn close-btn" onclick="closeWindow('appSettings')"></button>
+                </div>
+            </div>
+            <div class="p-6 h-[calc(100%-36px)] overflow-y-auto window-content">
+                <h2 class="text-xl font-bold mb-6" style="color: var(--accent-color)">System Customization</h2>
 
-                    <!-- Option 2: Nebula Color -->
-                    <div class="p-4 rounded-lg bg-gray-700/50 hover:ring-4 ring-indigo-500/50 cursor-pointer transition duration-200" onclick="setDesktopBackground('color', '#121235')">
-                        <div class="w-full h-16 rounded-lg bg-[#121235]"></div>
-                        <p class="mt-2 text-sm text-gray-300">Deep Nebula</p>
+                <div class="mb-6 pb-4 border-b border-gray-700">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">System Theme</label>
+                    <div class="flex space-x-4">
+                        <button onclick="toggleDarkMode(false); saveSettings();" class="py-2 px-4 rounded-lg transition duration-150 border border-gray-600" id="lightModeBtn" style="background-color: var(--bg-secondary); color: var(--text-primary)">
+                            <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.75 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.5 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM12 18.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM18.75 18.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.5 18.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75z"/></svg>
+                            Light
+                        </button>
+                        <button onclick="toggleDarkMode(true); saveSettings();" class="py-2 px-4 rounded-lg transition duration-150 border border-gray-600" id="darkModeBtn" style="background-color: var(--bg-secondary); color: var(--text-primary)">
+                            <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.75 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.5 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM12 18.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM18.75 18.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.5 18.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75z"/></svg>
+                            Dark
+                        </button>
                     </div>
-                    
-                    <!-- Option 3: Forest Green Color -->
-                    <div class="p-4 rounded-lg bg-gray-700/50 hover:ring-4 ring-indigo-500/50 cursor-pointer transition duration-200" onclick="setDesktopBackground('color', '#14532D')">
-                        <div class="w-full h-16 rounded-lg bg-[#14532D]"></div>
-                        <p class="mt-2 text-sm text-gray-300">Forest Green</p>
-                    </div>
+                </div>
 
-                    <!-- Option 4: Dark Space Image -->
-                    <div class="p-4 rounded-lg bg-gray-700/50 hover:ring-4 ring-indigo-500/50 cursor-pointer transition duration-200" onclick="setDesktopBackground('image', 'https://placehold.co/1920x1080/000000/FFFFFF?text=SPACE')">
-                        <div class="w-full h-16 rounded-lg bg-black flex items-center justify-center text-xs font-semibold" style="background-image: url('https://placehold.co/1920x1080/000000/FFFFFF?text=SPACE'); background-size: cover;"></div>
-                        <p class="mt-2 text-sm text-gray-300">Dark Space</p>
+                <div class="mb-6 pb-4 border-b border-gray-700">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Taskbar Position</label>
+                    <div class="flex space-x-4">
+                        <button onclick="setTaskbarPosition('bottom'); saveSettings();" class="py-2 px-4 rounded-lg transition duration-150 border border-gray-600" id="taskbarBottomBtn" style="background-color: var(--bg-secondary); color: var(--text-primary)">Bottom</button>
+                        <button onclick="setTaskbarPosition('top'); saveSettings();" class="py-2 px-4 rounded-lg transition duration-150 border border-gray-600" id="taskbarTopBtn" style="background-color: var(--bg-secondary); color: var(--text-primary)">Top</button>
                     </div>
+                </div>
+
+                <div class="mb-6 pb-4 border-b border-gray-700">
+                    <label for="accentColorPicker" class="block text-sm font-medium text-gray-300 mb-2">Select OS Accent Color</label>
+                    <input type="color" id="accentColorPicker" value="#4F46E5" onchange="setTempAccent(this.value)" class="w-16 h-10 p-1 border-gray-600 rounded-lg cursor-pointer bg-transparent"/>
+                    <button onclick="saveAccentColor()" class="ml-3 text-white font-semibold py-2 px-4 rounded-lg transition duration-150" style="background-color: var(--accent-color); hover:background-color: var(--accent-color-dark)">
+                        Apply & Save Accent
+                    </button>
                 </div>
 
                 <div id="settingsMessage" class="mt-6 p-3 rounded-lg text-sm text-center hidden"></div>
             </div>
         </div>
-
-        <!-- App 3: Browser (Placeholder) -->
-        <div id="appBrowser" class="app-window absolute hidden window-shadow rounded-xl overflow-hidden w-[70vw] max-w-[900px] h-[55vh] bg-[#222222] text-white">
-            <div class="window-header flex items-center justify-between p-2 glass-effect cursor-grab active:cursor-grabbing select-none touch-manipulation">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM2 10a8 8 0 018-8v8H2z"></path></svg>
-                    <span class="text-sm font-semibold">ALLQUEST Browser</span>
-                </div>
-                <div class="flex space-x-1">
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l4 4m6 0h4m0 0v4m0-4l-4 4m-6 0H4m0 0v4m0-4l4 4m6 0v4m0 0h4m0-4l-4 4"></path></svg></button>
-                    <button onclick="document.getElementById('appBrowser').classList.add('hidden')" class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-red-600 rounded-md transition duration-150">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
+        
+        <div id="appBrowser" class="app-window absolute hidden glass-effect rounded-xl" onmousedown="focusWindow(this)" ontouchstart="focusWindow(this)">
+            <div class="window-header flex items-center justify-between p-2 pl-4 select-none touch-manipulation" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                <span class="text-sm font-semibold">ALLQUEST Browser</span>
+                <div class="flex space-x-1 pr-1">
+                    <button class="window-control-btn minimize-btn" onclick="minimizeWindow('appBrowser')"></button>
+                    <button class="window-control-btn maximize-btn" onclick="maximizeWindow('appBrowser')"></button>
+                    <button class="window-control-btn close-btn" onclick="closeWindow('appBrowser')"></button>
                 </div>
             </div>
-            <div class="p-4 h-[calc(100%-44px)] overflow-y-auto window-content">
-                <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded-lg mb-4">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <input type="text" value="allquest.beta/home" readonly class="flex-grow bg-transparent text-gray-300 text-sm focus:outline-none"/>
+            <div class="flex flex-col h-[calc(100%-36px)]">
+                <div class="flex items-center p-2 border-b border-gray-700" style="background-color: var(--bg-secondary)">
+                    <button onclick="navigateBrowser('back')" class="p-1 rounded-full hover:bg-gray-700/50 mr-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                    </button>
+                     <button onclick="navigateBrowser('forward')" class="p-1 rounded-full hover:bg-gray-700/50 mr-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                    </button>
+                    <input type="url" id="browserAddressBar" value="https://example.com" onkeydown="if(event.key === 'Enter') navigateBrowser('go')" class="flex-grow p-1 rounded-full bg-gray-800 text-white focus:ring-2 focus:outline-none focus:ring-blue-500/50 px-3"/>
+                    <button onclick="navigateBrowser('go')" class="p-1 rounded-full hover:bg-gray-700/50 ml-2" style="background-color: var(--accent-color); color: white;">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z"/></svg>
+                    </button>
                 </div>
-                <h3 class="text-lg font-semibold text-yellow-400 mb-2">Welcome to the Web!</h3>
-                <p class="text-gray-400">This is a placeholder for your web browser. Imagine surfing the infinite data streams of ALLQUEST here.</p>
+                <iframe id="browserIframe" src="about:blank" class="flex-grow w-full h-full bg-white border-none"></iframe>
             </div>
         </div>
 
-        <!-- App 4: Placeholder (Generic App) -->
-        <div id="appGeneric" class="app-window absolute hidden window-shadow rounded-xl overflow-hidden w-[50vw] max-w-[600px] h-[40vh] bg-[#222222] text-white">
-            <div class="window-header flex items-center justify-between p-2 glass-effect cursor-grab active:cursor-grabbing select-none touch-manipulation">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM2 10a8 8 0 018-8v8H2z"></path></svg>
-                    <span id="genericAppName" class="text-sm font-semibold">ALLQUEST Alarm/Notes/App</span>
-                </div>
-                <div class="flex space-x-1">
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
-                    <button class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-gray-600 rounded-md transition duration-150"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l4 4m6 0h4m0 0v4m0-4l-4 4m-6 0H4m0 0v4m0-4l4 4m6 0v4m0 0h4m0-4l-4 4"></path></svg></button>
-                    <button onclick="document.getElementById('appGeneric').classList.add('hidden')" class="window-control-btn w-8 h-6 flex items-center justify-center hover:bg-red-600 rounded-md transition duration-150">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6 h-[calc(100%-44px)] overflow-y-auto window-content">
-                <p class="text-gray-400 mb-4" id="genericAppContent">This is a generic app placeholder. All icons are now functional!</p>
-            </div>
-        </div>
-
-
-        <!-- Start Menu -->
-        <div id="startMenu" class="absolute hidden bottom-16 w-full max-w-md glass-effect rounded-xl start-menu-open z-[900]">
-            <div class="p-4 text-white">
-                <!-- Pinned Apps Section -->
-                <div class="mb-4">
-                    <h2 class="text-sm font-semibold text-gray-200 mb-3">Core Apps</h2>
-                    <div class="grid grid-cols-4 gap-3">
-                        <!-- Explorer -->
-                        <div class="flex flex-col items-center justify-center p-2 rounded-lg allquest-highlight cursor-pointer" onclick="openWindow('appExplorer')">
-                            <svg class="w-8 h-8 text-indigo-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-2 2v-2H4a2 2 0 01-2-2V5z"></path></svg>
-                            <span class="text-xs text-gray-300 mt-1">Explorer</span>
-                        </div>
-                        <!-- Settings -->
-                        <div class="flex flex-col items-center justify-center p-2 rounded-lg allquest-highlight cursor-pointer" onclick="openWindow('appSettings')">
-                            <svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-9a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V9zm7 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V9zm-7 4a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm7 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path></svg>
-                            <span class="text-xs text-gray-300 mt-1">Settings</span>
-                        </div>
-                        <!-- Browser -->
-                        <div class="flex flex-col items-center justify-center p-2 rounded-lg allquest-highlight cursor-pointer" onclick="openWindow('appBrowser')">
-                            <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM2 10a8 8 0 018-8v8H2z"></path></svg>
-                            <span class="text-xs text-gray-300 mt-1">Browser</span>
-                        </div>
-                        <!-- Alarm (Generic App Launcher) -->
-                        <div class="flex flex-col items-center justify-center p-2 rounded-lg allquest-highlight cursor-pointer" onclick="openGenericApp('Alarm')">
-                            <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 011 1v4a1 1 0 11-2 0V9a1 1 0 011-1z"></path></svg>
-                            <span class="text-xs text-gray-300 mt-1">Alarm</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User/Power Section -->
-                <div class="pt-4 border-t border-gray-700 flex items-center justify-between">
-                    <
+        <div id="appTerminal" class="app-window absolute hidden glass-effect rounded-xl" onmousedown="focusWindow(this)" ontouchstart="focusWindow(this)">
+            <div class="window-header flex items-center justify-between p-2 pl-4 select-none touch-manipulation" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                <span class="text-sm font-semibold">ALLQUEST Terminal</span>
+                <div class="flex space-x-1 pr-1">
+                    <button class="window-control-btn minimize-btn" onclick="minimizeWindow('appTerminal')"></button>
+           
